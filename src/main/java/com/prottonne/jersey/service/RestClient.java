@@ -22,7 +22,7 @@ public class RestClient {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Value("${endpoint}")
-    private String endpoint;
+    private String myEndpoint;
 
     @Value("${connection.timeup}")
     private String connectionTimeup;
@@ -33,12 +33,22 @@ public class RestClient {
     private final Client client;
 
     public RestClient() {
+        /**
+         * You could use
+         *
+         * @Autowired private Client client;
+         *
+         */
         this.client = ClientBuilder.newClient();
         this.client.property(ClientProperties.CONNECT_TIMEOUT, connectionTimeup);
         this.client.property(ClientProperties.READ_TIMEOUT, readTimeup);
     }
 
-    public MyResponse methodo(String data) {
+    public MyResponse method(String data) {
+        return genericMethod(data, MyResponse.class, myEndpoint);
+    }
+
+    public <T> T genericMethod(String data, Class<T> entityType, String endpoint) {
 
         check(data);
 
@@ -61,7 +71,7 @@ public class RestClient {
 
             check(response);
 
-            MyResponse myResponse = response.readEntity(MyResponse.class);
+            T myResponse = response.readEntity(entityType);
 
             logger.info("myResponse {}", myResponse);
 
